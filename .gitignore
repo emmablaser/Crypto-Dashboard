@@ -1,0 +1,15 @@
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Node
+node_modules/
+**/node_modules/
+
+# Build output
+**/build/
+**/.react-router/
+
+# Env / secrets
+.env
+**/.env

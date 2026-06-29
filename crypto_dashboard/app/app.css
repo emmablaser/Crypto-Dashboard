@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens
+ * -------------
+ * Semantic colors are exposed as Tailwind utilities (bg-surface, text-content,
+ * border-border, text-positive, …) and resolve to CSS variables that swap
+ * between light and dark below — so components never need `dark:` variants.
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* Brand scale */
+  --color-brand-50: #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+
+  /* Status */
+  --color-positive: #10b981;
+  --color-negative: #f43f5e;
+
+  /* Semantic surfaces / text (light↔dark via the vars below) */
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-border: var(--border);
+  --color-content: var(--content);
+  --color-content-muted: var(--content-muted);
+  --color-positive-soft: var(--positive-soft);
+  --color-negative-soft: var(--negative-soft);
+
+  /* Radii */
+  --radius-card: 1rem;
+}
+
+/*
+ * Theme is controlled by the `data-theme` attribute on <html>, set by the
+ * no-flash script in root.tsx (resolves stored choice → system preference).
+ * Light is the default; `data-theme="dark"` overrides the tokens.
+ */
+:root {
+  --page: #f9fafb;
+  --surface: #ffffff;
+  --surface-muted: #f3f4f6;
+  --border: #e5e7eb;
+  --content: #111827;
+  --content-muted: #6b7280;
+  --positive-soft: rgba(16, 185, 129, 0.12);
+  --negative-soft: rgba(244, 63, 94, 0.12);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --page: #030712;
+  --surface: #111827;
+  --surface-muted: #1f2937;
+  --border: #1f2937;
+  --content: #f9fafb;
+  --content-muted: #9ca3af;
+  --positive-soft: rgba(16, 185, 129, 0.15);
+  --negative-soft: rgba(244, 63, 94, 0.15);
+  color-scheme: dark;
+}
+
+html,
+body {
+  @apply bg-page text-content;
+}
+
+/*
+ * Theme-toggle icon visibility, driven purely by the active theme attribute
+ * (set before paint), so the correct icon shows immediately with no flash.
+ */
+.theme-when-dark {
+  display: none;
+}
+.theme-when-light {
+  display: inline-flex;
+}
+:root[data-theme="dark"] .theme-when-dark {
+  display: inline-flex;
+}
+:root[data-theme="dark"] .theme-when-light {
+  display: none;
+}
