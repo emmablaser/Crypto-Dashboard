@@ -4,7 +4,7 @@ import { CoinIcon } from "./CoinIcon";
 import { ChangeBadge } from "./ChangeBadge";
 import { Badge, cardStyles } from "./ui";
 
-export interface CoinCardProps {
+interface CoinCardProps {
   coin: Coin;
   /** Exchange rate of this coin expressed in BTC. */
   btcRate: number;

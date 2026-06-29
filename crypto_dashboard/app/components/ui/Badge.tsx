@@ -3,7 +3,7 @@ import { cn } from "../../lib/cn";
 
 type Tone = "neutral" | "positive" | "negative";
 
-export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
+interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   tone?: Tone;
 }
 

@@ -4,7 +4,7 @@ import { cn } from "../../lib/cn";
 type Variant = "primary" | "secondary" | "ghost";
 type Size = "sm" | "md";
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
   active?: boolean;

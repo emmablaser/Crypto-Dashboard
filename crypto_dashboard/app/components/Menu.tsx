@@ -5,25 +5,20 @@ export interface MenuOption<T> {
   label: string;
 }
 
-export interface MenuProps<T> {
+interface MenuProps<T> {
   /** Optional leading label, e.g. "Sort by". */
   label?: string;
   options: MenuOption<T>[];
   value: T;
   onChange: (value: T) => void;
-  size?: "sm" | "md";
 }
 
-/**
- * A horizontal group of toggle buttons where exactly one option is active.
- * Reused for the sort selector and the chart time-range selector.
- */
+/** A horizontal group of toggle buttons where exactly one option is active. */
 export function Menu<T extends string | number>({
   label,
   options,
   value,
   onChange,
-  size = "sm",
 }: MenuProps<T>) {
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -36,7 +31,7 @@ export function Menu<T extends string | number>({
         <Button
           key={String(opt.value)}
           variant="ghost"
-          size={size}
+          size="sm"
           active={opt.value === value}
           onClick={() => onChange(opt.value)}
         >
