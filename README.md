@@ -12,24 +12,24 @@ Tailwind CSS v4 · Vite 8 · Vitest. Data from the public Coinbase Exchange API.
 
 ```bash
 npm install
-```
-
-Create a `.env` in the project root with two variables:
-
-- `SITE_PASSWORD_HASH` — a salted **scrypt** verifier for the shared password
-  (the password itself is never stored). Generate it with `npm run hash-password`,
-  then paste the printed line into `.env`.
-- `SESSION_SECRET` — a random string to sign the session cookie:
-  `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
-
-Then start the dev server:
-
-```bash
 npm run dev
 ```
 
 Visit `http://localhost:5173` (Vite picks the next free port if it's taken) and
 enter the shared password — **`crypto-dashboard`** — to reach the dashboard.
+It works out of the box: no `.env` is required, because a built-in **scrypt
+verifier** for the demo password ships in the code (it's a salted hash, not the
+password itself).
+
+### Overriding for a real deployment (optional)
+
+Set either of these via environment variables (e.g. a `.env` file) to override
+the built-in defaults:
+
+- `SITE_PASSWORD_HASH` — a salted scrypt verifier for your own password.
+  Generate it with `npm run hash-password` and paste the printed line in.
+- `SESSION_SECRET` — a random string to sign the session cookie:
+  `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
 
 ### Scripts
 
@@ -51,10 +51,12 @@ enter the shared password — **`crypto-dashboard`** — to reach the dashboard.
   `@react-router/*`, so a strict name-based check for a literal `remix` package
   won't find one — the framework behavior is unchanged. See [`PRD.md`](./PRD.md).
 - **Shared password, stored as a hash, no accounts.** One site-wide password
-  (no per-user logins). It's kept as a salted scrypt verifier so no plaintext
-  lives in the repo or `.env`; a separate `npm run hash-password` tool produces
-  it. *Trade-off:* no per-user identity or revocation, and rotating the password
-  logs everyone out. See [`PRD-AUTH.md`](./PRD-AUTH.md) and
+  (no per-user logins), kept as a salted **scrypt verifier** so no plaintext
+  password lives anywhere — only its slow, salted hash. The verifier for the
+  demo password is committed so a fresh clone runs with no setup; `npm run
+  hash-password` generates your own, and `SITE_PASSWORD_HASH` overrides the
+  default. *Trade-off:* no per-user identity or revocation, and rotating the
+  password logs everyone out. See [`PRD-AUTH.md`](./PRD-AUTH.md) and
   [`PRD-PASSWORD-HASHING.md`](./PRD-PASSWORD-HASHING.md).
 - **Server-side data fetching + in-memory cache.** The browser never calls
   Coinbase directly; loaders fetch on the server and a short-TTL cache absorbs
