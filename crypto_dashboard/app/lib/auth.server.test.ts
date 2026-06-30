@@ -57,8 +57,9 @@ describe("verifyPassword", () => {
     expect(verifyPassword("nope")).toBe(false);
   });
 
-  it("fails closed when no verifier is configured", () => {
+  it("falls back to the built-in demo verifier when none is configured", () => {
     delete process.env.SITE_PASSWORD_HASH;
-    expect(verifyPassword("s3cret")).toBe(false);
+    expect(verifyPassword("crypto-dashboard")).toBe(true);
+    expect(verifyPassword("wrong")).toBe(false);
   });
 });

@@ -129,12 +129,19 @@ scrypt:N=16384,r=8,p=1:<saltBase64>:<hashBase64>
 | Variable | Before | After |
 | --- | --- | --- |
 | `SITE_PASSWORD` | plaintext password | **removed** |
-| `SITE_PASSWORD_HASH` | — | `scrypt:N=...:salt:hash` (a verifier, safe to store) |
+| `SITE_PASSWORD_HASH` | — | `scrypt:N=...:salt:hash` (a verifier; overrides the built-in default) |
 | `SESSION_SECRET` | unchanged | unchanged |
 
 - `README.md` documents `SITE_PASSWORD_HASH` and points to `npm run
   hash-password`.
-- `.env` (real, git-ignored) holds the generated hash. Even if it leaks, it is a
+- **Built-in default (committed):** `auth.server.ts` ships a `DEFAULT_PASSWORD_HASH`
+  verifier for the demo password `crypto-dashboard`, used when `SITE_PASSWORD_HASH`
+  is unset. Because it is a salted scrypt **hash, not the password**, committing it
+  is safe and lets a fresh clone run with no `.env`. This is a deliberate
+  portfolio-project trade-off: convenience of "clone and run" over forcing each
+  cloner to generate a verifier.
+- **Override:** set `SITE_PASSWORD_HASH` (e.g. in a git-ignored `.env` or the
+  host's secret store) to use a different password. Even if it leaks, it is a
   slow-to-crack salted verifier, not the password.
 - **Migration:** delete `SITE_PASSWORD` everywhere (env, deploy secrets, shell
   history) once `SITE_PASSWORD_HASH` is in place.
@@ -233,14 +240,21 @@ export function verifyPassword(input: string): boolean {
 - **Salted:** per-deployment salt defeats rainbow tables and hides password reuse
   across environments.
 - **Timing-safe compare:** unchanged property, now over the derived keys.
-- **Fail closed:** missing/invalid hash → every login is rejected.
+- **Fail closed on bad input:** `verifyAgainstHash` rejects empty, malformed, or
+  non-scrypt verifiers. (`verifyPassword` falls back to the committed demo
+  verifier only when `SITE_PASSWORD_HASH` is *unset* — see below.)
 
 ### Honest limitations
 
+- **Committed demo verifier:** the default `DEFAULT_PASSWORD_HASH` ships in the
+  repo for clone-and-run convenience, so the demo password (`crypto-dashboard`)
+  is effectively public (it's also in the README). That's fine for a portfolio
+  project, but a real deployment must override `SITE_PASSWORD_HASH` with its own
+  verifier and set a secret `SESSION_SECRET`.
 - Still a **single shared secret** — no per-user identity or revocation (see
   `PRD-AUTH.md §8`). Rotating it logs everyone out.
 - The KDF only buys time **if the hash leaks**; it does not replace keeping the
-  hash and `SESSION_SECRET` out of public places.
+  `SITE_PASSWORD_HASH` (in real use) and `SESSION_SECRET` out of public places.
 - Security ultimately depends on the **chosen password's strength**.
 
 ## 9. Rollout / Migration  — ✅ done

@@ -13,15 +13,25 @@ import { createCookieSessionStorage, redirect } from "react-router";
  *
  * Configure via environment variables:
  *   SITE_PASSWORD_HASH — scrypt verifier `scrypt:N=...,r=...,p=...:salt:hash`
- *                        (required in production; generate with hash-password)
+ *                        (overrides the built-in default below)
  *   SESSION_SECRET     — secret used to sign the session cookie
  */
 
 const SESSION_SECRET = process.env.SESSION_SECRET || "dev-secret-please-change";
 
-if (!process.env.SITE_PASSWORD_HASH) {
+/**
+ * Built-in verifier for the demo password `crypto-dashboard`, used when
+ * `SITE_PASSWORD_HASH` isn't set. This is a salted **scrypt hash, not the
+ * password itself**, so committing it is safe and lets a fresh clone run with
+ * no `.env` setup. For a real deployment, override it (and `SESSION_SECRET`)
+ * via environment variables — generate a new one with `npm run hash-password`.
+ */
+const DEFAULT_PASSWORD_HASH =
+  "scrypt:N=16384,r=8,p=1:GAKWOp7Y1J5r0FtD1Kf9sg==:o/WNUPuhLQq+lx/s9QPQuQ9sFGN1RNILnmpxNVxoz2Y=";
+
+if (process.env.NODE_ENV === "production" && !process.env.SITE_PASSWORD_HASH) {
   console.warn(
-    "[auth] SITE_PASSWORD_HASH is not set. Run `npm run hash-password` and put the output in .env (see README). Until then, login will reject every password.",
+    "[auth] SITE_PASSWORD_HASH is not set; using the built-in demo verifier. Set SITE_PASSWORD_HASH (and SESSION_SECRET) for production — generate one with `npm run hash-password`.",
   );
 }
 
@@ -82,12 +92,16 @@ function getSession(request: Request) {
 }
 
 /**
- * Checks a submitted password against the configured scrypt verifier. Reads the
+ * Checks a submitted password against the configured scrypt verifier:
+ * `SITE_PASSWORD_HASH` if set, otherwise the built-in demo verifier. Reads the
  * env var at call time so tests (and key rotation) can change it without a
- * module reload. Fails closed when nothing is configured.
+ * module reload.
  */
 export function verifyPassword(input: string): boolean {
-  return verifyAgainstHash(input, process.env.SITE_PASSWORD_HASH ?? "");
+  return verifyAgainstHash(
+    input,
+    process.env.SITE_PASSWORD_HASH || DEFAULT_PASSWORD_HASH,
+  );
 }
 
 export async function isAuthed(request: Request): Promise<boolean> {
