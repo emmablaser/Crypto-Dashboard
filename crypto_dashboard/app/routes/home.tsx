@@ -2,8 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { isRouteErrorResponse, useRevalidator } from "react-router";
 import type { Route } from "./+types/home";
 import { getMarkets, type Coin } from "../lib/coinbase";
+import { requireAuth } from "../lib/auth.server";
 import { useDragReorder } from "../lib/useDragReorder";
 import { CoinCard } from "../components/CoinCard";
+import { LogoutButton } from "../components/LogoutButton";
 import { CoinCardSkeleton } from "../components/CoinCardSkeleton";
 import { Menu, type MenuOption } from "../components/Menu";
 import { RefreshControls } from "../components/RefreshControls";
@@ -23,7 +25,8 @@ export function meta(_: Route.MetaArgs) {
   ];
 }
 
-export async function loader(_: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
+  await requireAuth(request);
   const coins = await getMarkets();
   return { coins, updatedAt: new Date().toISOString() };
 }
@@ -147,6 +150,7 @@ export default function Home({ loaderData }: Route.ComponentProps) {
             onToggleAuto={() => setAutoRefresh((v) => !v)}
           />
           <ThemeToggle />
+          <LogoutButton />
         </div>
       </header>
 
